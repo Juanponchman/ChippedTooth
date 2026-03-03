@@ -1,0 +1,23 @@
+name: Update Filtered M3U
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # runs daily at 6am UTC
+  workflow_dispatch:        # also lets you trigger it manually
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run filter
+        run: python filter.py
+
+      - name: Commit updated file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add English_Channels_filtered.m3u8
+          git diff --cached --quiet || git commit -m "Auto-update: $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
